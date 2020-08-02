@@ -12,8 +12,9 @@
 /* function declarations */
 int init();
 void quit();
-void gameLoop();
 void handleInput(int* gameState);
+void render();
+void gameLoop();
 
 /* variables */
 SDL_Window* window;
@@ -28,7 +29,7 @@ typedef struct {
 } color;
 
 /* 0 i l j o s t z */
-color colors[8] = {{0xFF, 0xFF, 0xFF, 0xFF},
+const color colors[8] = {{0x00, 0x00, 0x00, 0xFF},
                    {0x00, 0xF2, 0xF5, 0xFF},
                    {0x00, 0x05, 0xEF, 0xFF},
                    {0xFF, 0x9C, 0x00, 0xFF},
@@ -41,6 +42,9 @@ color colors[8] = {{0xFF, 0xFF, 0xFF, 0xFF},
 int
 init()
 {
+
+	board[5][10] = 5;
+
 	/* init SDL2 */
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -104,17 +108,20 @@ render()
 	int size = (int)((float)SCREEN_HEIGHT*MONOMINO_SCALE);
 	int x = SCREEN_WIDTH/2 - (BOARD_WIDTH * size)/2;
 	int y = SCREEN_HEIGHT;
-	for (int i = 0; i <= BOARD_WIDTH; i++) {
-		//x,y,x,y
-		SDL_RenderDrawLine(renderer, x, SCREEN_HEIGHT, x, SCREEN_HEIGHT - (size * BOARD_HEIGHT));
+
+	SDL_Rect square = {0, 0, size, size};
+
+	for(int i = 0; i < BOARD_WIDTH; i++){
+		y = SCREEN_HEIGHT;
+		for(int j = 0; j < BOARD_HEIGHT; j++){
+			SDL_SetRenderDrawColor(renderer, colors[board[i][j]].r, colors[board[i][j]].g, colors[board[i][j]].b, colors[board[i][j]].a);
+			square.x = x;
+			square.y = y;
+			SDL_RenderFillRect(renderer, &square);
+			y -= size;
+		}
 		x += size;
 	}
-	for(int i = 0; i <= BOARD_HEIGHT; i++){
-		SDL_RenderDrawLine(renderer, SCREEN_WIDTH/2 - (BOARD_WIDTH * size)/2, y, SCREEN_WIDTH/2 + (BOARD_WIDTH * size)/2, y);
-		y -= size;
-	}
-
-
 
 	SDL_RenderPresent(renderer);
 }
