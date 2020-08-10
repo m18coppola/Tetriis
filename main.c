@@ -134,11 +134,11 @@ handleInput(int* gameState)
 				break;
 
 				case SDLK_RIGHT:
-				rotateTetromino(1);
+				rotateTetromino(-1);
 				break;
 
 				case SDLK_LEFT:
-				rotateTetromino(-1);
+				rotateTetromino(1);
 				break;
 			}
 		}
