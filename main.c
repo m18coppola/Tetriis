@@ -135,11 +135,11 @@ handleInput(int* gameState)
 				break;
 
 				case SDLK_RIGHT:
-				rotateTetromino(1);
+				rotateTetromino(-1);
 				break;
 
 				case SDLK_LEFT:
-				rotateTetromino(-1);
+				rotateTetromino(1);
 				break;
 			}
 		}
@@ -255,8 +255,8 @@ rotateTetromino(int dir)
             float deltaX = centerOfRotation.x - fallingTetromino[i].x;
             float deltaY = centerOfRotation.y - fallingTetromino[i].y;
 
-            fallingTetromino[i].x = centerOfRotation.x - deltaY;
-            fallingTetromino[i].y = centerOfRotation.y + deltaX;
+            fallingTetromino[i].x = centerOfRotation.x - dir*deltaY;
+            fallingTetromino[i].y = centerOfRotation.y + dir*deltaX;
         }
     }
 }
