@@ -39,10 +39,10 @@ const vec2 tetrominos[7][4] =
 {
 	{ {3, 0}, {4, 0}, {5, 0}, {6, 0} }, //I
 	{ {4, 0}, {5, 0}, {5, 1}, {6, 1} }, //Z
-	{ {4, 1}, {5, 0}, {5, 1}, {6, 0} }, //S
-	{ {4, 1}, {5, 1}, {5, 0}, {6, 1} }, //T
-	{ {4, 0}, {5, 0}, {4, 1}, {6, 0} }, //L
-	{ {4, 0}, {5, 1}, {4, 1}, {6, 1} }, //J
+	{ {3, 1}, {4, 0}, {4, 1}, {5, 0} }, //S
+	{ {3, 1}, {4, 1}, {4, 0}, {5, 1} }, //T
+	{ {3, 0}, {4, 0}, {3, 1}, {5, 0} }, //L
+	{ {3, 0}, {4, 1}, {3, 1}, {5, 1} }, //J
 	{ {5, 0}, {4, 0}, {5, 1}, {4, 1} }, //O
 };
 
@@ -54,14 +54,15 @@ typedef struct {
 } color;
 
 /* 0 i l j o s t z */
-const color colors[8] = {{0x00, 0x00, 0x00, 0xFF}, //empty
-                   {0x00, 0xF2, 0xF5, 0xFF}, //I
-                   {0xFF, 0x00, 0x00, 0xFF}, //Z
-                   {0x00, 0xF4, 0x3A, 0xFF}, //S
-                   {0xB1, 0x00, 0xBB, 0xFF}, //T
-                   {0x00, 0x05, 0xEF, 0xFF}, //L
-                   {0xFF, 0x9C, 0x00, 0xFF}, //J
-                   {0xF1, 0xE6, 0x1F, 0xFF}, //O
+const color colors[8] = {
+        {0x00, 0x00, 0x00, 0xFF}, //empty
+        {0x00, 0xF2, 0xF5, 0xFF}, //I
+        {0xFF, 0x00, 0x00, 0xFF}, //Z
+        {0x00, 0xF4, 0x3A, 0xFF}, //S
+        {0xB1, 0x00, 0xBB, 0xFF}, //T
+        {0x00, 0x05, 0xEF, 0xFF}, //L
+        {0xFF, 0x9C, 0x00, 0xFF}, //J
+        {0xF1, 0xE6, 0x1F, 0xFF}, //O
 };
 
 int
@@ -226,7 +227,7 @@ rotateTetromino(int dir)
 	vec2 centerOfRotation = fallingTetromino[1];
 	if(currentSelection != 6) {  //O block doesn't rotate
 
-        if (currentSelection == 0) { //handle I block rotation
+        if (currentSelection == 0) { //find I block rotation point
             float xOffset, yOffset;
             if(orientation%2 == 0){
                 yOffset = .5;
@@ -242,7 +243,7 @@ rotateTetromino(int dir)
         }
 
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) { //universal rotation around center point
             float deltaX = centerOfRotation.x - fallingTetromino[i].x;
             float deltaY = centerOfRotation.y - fallingTetromino[i].y;
 
