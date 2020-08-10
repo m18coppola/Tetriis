@@ -17,6 +17,7 @@ void render();
 void gameLoop();
 void newTetromino(int selection);
 void moveTetromino(int dir);
+void rotateTetromino(int dir);
 
 /* variables */
 int currentSelection = 0;
@@ -32,19 +33,6 @@ typedef struct {
 const vec2 startingPos = {4, 0};
 
 vec2 fallingTetromino[4];
-
-/*
-const int tetrominos[7][4] =
-{
-	{1,3,5,7}, //I
-	{2,4,5,7}, //Z
-	{3,5,4,6}, //S
-	{3,5,4,7}, //T
-	{2,3,5,7}, //L
-	{3,5,7,6}, //J
-	{2,3,4,5}  //O
-};
-*/
 
 const vec2 tetrominos[7][4] = 
 {
@@ -142,6 +130,14 @@ handleInput(int* gameState)
 				case SDLK_d:
 				moveTetromino(1);
 				break;
+
+				case SDLK_RIGHT:
+				rotateTetromino(1);
+				break;
+
+				case SDLK_LEFT:
+				rotateTetromino(-1);
+				break;
 			}
 		}
 	}
@@ -157,13 +153,13 @@ render()
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	int size = (int)((float)SCREEN_HEIGHT*MONOMINO_SCALE);
 	int x = SCREEN_WIDTH/2 - (BOARD_WIDTH * size)/2;
-	int y = SCREEN_HEIGHT;
+	int y = SCREEN_HEIGHT - size;
 
 	SDL_Rect square = {0, 0, size, size};
 
 	for(int i = 0; i < BOARD_WIDTH; i++){
 		y = SCREEN_HEIGHT;
-		for(int j = 0; j < BOARD_HEIGHT; j++){
+		for(int j = 0; j <= BOARD_HEIGHT; j++){
 			SDL_SetRenderDrawColor(renderer, colors[board[i][j]].r, colors[board[i][j]].g, colors[board[i][j]].b, colors[board[i][j]].a);
 			square.x = x;
 			square.y = y;
@@ -199,12 +195,6 @@ gameLoop()
 void
 newTetromino(int selection)
 {
-	/*
-	for(int i = 0; i < 4; i++){
-		fallingTetromino[i].x = tetrominos[selection][i] % 2 + startingPos.x;
-		fallingTetromino[i].y = tetrominos[selection][i] / 2 + startingPos.y;
-	}
-	*/
 	for(int i = 0; i < 4; i++){
 		fallingTetromino[i].x = tetrominos[selection][i].x;
 		fallingTetromino[i].y = tetrominos[selection][i].y;
@@ -225,6 +215,20 @@ moveTetromino(int dir)
 		for(int i = 0; i < 4; i++){
 			fallingTetromino[i].x -= dir;
 		}
+	}
+}
+
+void
+rotateTetromino(int dir)
+{
+	vec2 centerOfRotation = fallingTetromino[1];
+
+	for(int i = 0; i < 4; i++){
+		int deltaX = centerOfRotation.x - fallingTetromino[i].x;
+		int deltaY = centerOfRotation.y - fallingTetromino[i].y;
+
+		fallingTetromino[i].x -= deltaY;
+		fallingTetromino[i].y += deltaX;
 	}
 }
 
