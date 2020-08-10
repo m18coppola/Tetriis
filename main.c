@@ -33,6 +33,7 @@ typedef struct {
 const vec2 startingPos = {4, 0};
 
 vec2 fallingTetromino[4];
+int orientation;
 
 const vec2 tetrominos[7][4] = 
 {
@@ -42,7 +43,7 @@ const vec2 tetrominos[7][4] =
 	{ {4, 1}, {5, 1}, {5, 0}, {6, 1} }, //T
 	{ {4, 0}, {5, 0}, {4, 1}, {6, 0} }, //L
 	{ {4, 0}, {5, 1}, {4, 1}, {6, 1} }, //J
-	{ {5, 1}, {4, 0}, {5, 0}, {4, 1} }, //O
+	{ {5, 0}, {4, 0}, {5, 1}, {4, 1} }, //O
 };
 
 typedef struct {
@@ -199,6 +200,7 @@ newTetromino(int selection)
 		fallingTetromino[i].x = tetrominos[selection][i].x;
 		fallingTetromino[i].y = tetrominos[selection][i].y;
 	}
+	orientation = 0;
 }
 
 void
@@ -222,17 +224,32 @@ void
 rotateTetromino(int dir)
 {
 	vec2 centerOfRotation = fallingTetromino[1];
-	if(currentSelection == 0 || currentSelection == 6){
-		centerOfRotation = (vec2){centerOfRotation.x + 1, centerOfRotation.y + 1};
-	}
+	if(currentSelection != 6) {  //O block doesn't rotate
 
-	for(int i = 0; i < 4; i++){
-		float deltaX = centerOfRotation.x - fallingTetromino[i].x;
-		float deltaY = centerOfRotation.y - fallingTetromino[i].y;
+        if (currentSelection == 0) { //handle I block rotation
+            float xOffset, yOffset;
+            if(orientation%2 == 0){
+                yOffset = .5;
+            }else{
+                xOffset = .5;
+            }
+            centerOfRotation = (vec2) {
+                    (fallingTetromino[1].x + fallingTetromino[2].x) / 2.0 + xOffset*(orientation==1? 1 : -1),
+                    (fallingTetromino[1].y + fallingTetromino[2].y) / 2.0 + yOffset*(orientation==0? 1 : -1),
+            };
+            orientation++;
+            if(orientation>3) orientation = 0;
+        }
 
-		fallingTetromino[i].x = centerOfRotation.x - deltaY;
-		fallingTetromino[i].y = centerOfRotation.y + deltaX;
-	}
+
+        for (int i = 0; i < 4; i++) {
+            float deltaX = centerOfRotation.x - fallingTetromino[i].x;
+            float deltaY = centerOfRotation.y - fallingTetromino[i].y;
+
+            fallingTetromino[i].x = centerOfRotation.x - deltaY;
+            fallingTetromino[i].y = centerOfRotation.y + deltaX;
+        }
+    }
 }
 
 int
