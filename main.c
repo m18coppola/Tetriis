@@ -36,13 +36,13 @@ vec2 fallingTetromino[4];
 
 const vec2 tetrominos[7][4] = 
 {
-	{ {3, 0}, {4, 0}, {5, 0}, {6, 0} }, //I
+	{ {3, 0}, {5, 0}, {4, 0}, {6, 0} }, //I
 	{ {4, 0}, {5, 0}, {5, 1}, {6, 1} }, //Z
-	{ {4, 1}, {5, 1}, {5, 0}, {6, 0} }, //S
+	{ {4, 1}, {5, 0}, {5, 1}, {6, 0} }, //S
 	{ {4, 1}, {5, 1}, {5, 0}, {6, 1} }, //T
-	{ {4, 0}, {4, 1}, {5, 0}, {6, 0} }, //L
-	{ {4, 0}, {4, 1}, {5, 1}, {6, 1} }, //J
-	{ {4, 0}, {4, 1}, {5, 0}, {5, 1} }, //O
+	{ {4, 0}, {5, 0}, {4, 1}, {6, 0} }, //L
+	{ {4, 0}, {5, 1}, {4, 1}, {6, 1} }, //J
+	{ {4, 0}, {5, 1}, {5, 0}, {4, 1} }, //O
 };
 
 typedef struct {
@@ -227,8 +227,8 @@ rotateTetromino(int dir)
 		int deltaX = centerOfRotation.x - fallingTetromino[i].x;
 		int deltaY = centerOfRotation.y - fallingTetromino[i].y;
 
-		fallingTetromino[i].x -= deltaY;
-		fallingTetromino[i].y += deltaX;
+		fallingTetromino[i].x = centerOfRotation.x - deltaY;
+		fallingTetromino[i].y = centerOfRotation.y + deltaX;
 	}
 }
 
