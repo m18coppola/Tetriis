@@ -24,6 +24,7 @@ int currentSelection = 0;
 SDL_Window* window;
 SDL_Renderer* renderer;
 int board[BOARD_HEIGHT][BOARD_WIDTH];
+const Uint32 maxFrameTime = 1000 / 60;
 
 typedef struct {
 	float x;
@@ -189,8 +190,15 @@ gameLoop()
 	
 
 	while (running) {
+		Uint32 startTime = SDL_GetTicks();
+
 		handleInput(&running);
 		render();
+
+		Uint32 frameLength = SDL_GetTicks() - startTime;
+		if (maxFrameTime > frameLength) {
+			SDL_Delay(maxFrameTime - frameLength);
+		}
 	}
 }
 
