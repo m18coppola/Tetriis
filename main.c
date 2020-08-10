@@ -15,11 +15,47 @@ void quit();
 void handleInput(int* gameState);
 void render();
 void gameLoop();
+void newTetromino(int selection);
+void moveTetromino(int dir);
 
 /* variables */
+int currentSelection = 0;
 SDL_Window* window;
 SDL_Renderer* renderer;
 int board[BOARD_HEIGHT][BOARD_WIDTH];
+
+typedef struct {
+	int x;
+	int y;
+} vec2;
+
+const vec2 startingPos = {4, 0};
+
+vec2 fallingTetromino[4];
+
+/*
+const int tetrominos[7][4] =
+{
+	{1,3,5,7}, //I
+	{2,4,5,7}, //Z
+	{3,5,4,6}, //S
+	{3,5,4,7}, //T
+	{2,3,5,7}, //L
+	{3,5,7,6}, //J
+	{2,3,4,5}  //O
+};
+*/
+
+const vec2 tetrominos[7][4] = 
+{
+	{ {3, 0}, {4, 0}, {5, 0}, {6, 0} }, //I
+	{ {4, 0}, {5, 0}, {5, 1}, {6, 1} }, //Z
+	{ {4, 1}, {5, 1}, {5, 0}, {6, 0} }, //S
+	{ {4, 1}, {5, 1}, {5, 0}, {6, 1} }, //T
+	{ {4, 0}, {4, 1}, {5, 0}, {6, 0} }, //L
+	{ {4, 0}, {4, 1}, {5, 1}, {6, 1} }, //J
+	{ {4, 0}, {4, 1}, {5, 0}, {5, 1} }, //O
+};
 
 typedef struct {
 	int r;
@@ -29,21 +65,19 @@ typedef struct {
 } color;
 
 /* 0 i l j o s t z */
-const color colors[8] = {{0x00, 0x00, 0x00, 0xFF},
-                   {0x00, 0xF2, 0xF5, 0xFF},
-                   {0x00, 0x05, 0xEF, 0xFF},
-                   {0xFF, 0x9C, 0x00, 0xFF},
-                   {0xF1, 0xE6, 0x1F, 0xFF},
-                   {0x00, 0xF4, 0x3A, 0xFF},
-                   {0xB1, 0x00, 0xBB, 0xFF},
-                   {0xFF, 0x00, 0x00, 0xFF},
+const color colors[8] = {{0x00, 0x00, 0x00, 0xFF}, //empty
+                   {0x00, 0xF2, 0xF5, 0xFF}, //I
+                   {0xFF, 0x00, 0x00, 0xFF}, //Z
+                   {0x00, 0xF4, 0x3A, 0xFF}, //S
+                   {0xB1, 0x00, 0xBB, 0xFF}, //T
+                   {0x00, 0x05, 0xEF, 0xFF}, //L
+                   {0xFF, 0x9C, 0x00, 0xFF}, //J
+                   {0xF1, 0xE6, 0x1F, 0xFF}, //O
 };
 
 int
 init()
 {
-
-	board[5][10] = 5;
 
 	/* init SDL2 */
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -53,7 +87,7 @@ init()
 
 	/* create SDL2 window */
 	window = NULL;
-	window = SDL_CreateWindow("Tetriis", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("The Game!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	if (window == NULL) {
 		printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
 		return -1;
@@ -92,6 +126,22 @@ handleInput(int* gameState)
 				case SDLK_q:
 				*gameState = 0;
 				break;
+
+				case SDLK_0:
+				currentSelection++;
+				if (currentSelection > 6) {
+					currentSelection = 0;
+				}
+				newTetromino(currentSelection);
+				break;
+
+				case SDLK_a:
+				moveTetromino(-1);
+				break;
+
+				case SDLK_d:
+				moveTetromino(1);
+				break;
 			}
 		}
 	}
@@ -123,6 +173,14 @@ render()
 		x += size;
 	}
 
+	/* draw tetromino */
+	SDL_SetRenderDrawColor(renderer, colors[currentSelection + 1].r, colors[currentSelection + 1].g, colors[currentSelection + 1].b, colors[currentSelection + 1].a);
+	for(int i = 0; i < 4; i++){
+		square.x = (SCREEN_WIDTH/2 - (BOARD_WIDTH * size)/2) + size * fallingTetromino[i].x;
+		square.y = SCREEN_HEIGHT - BOARD_HEIGHT * size + fallingTetromino[i].y * size;
+		SDL_RenderFillRect(renderer, &square);
+	}
+
 	SDL_RenderPresent(renderer);
 }
 
@@ -130,10 +188,43 @@ void
 gameLoop()
 {
 	int running = 1;
+	
 
 	while (running) {
 		handleInput(&running);
 		render();
+	}
+}
+
+void
+newTetromino(int selection)
+{
+	/*
+	for(int i = 0; i < 4; i++){
+		fallingTetromino[i].x = tetrominos[selection][i] % 2 + startingPos.x;
+		fallingTetromino[i].y = tetrominos[selection][i] / 2 + startingPos.y;
+	}
+	*/
+	for(int i = 0; i < 4; i++){
+		fallingTetromino[i].x = tetrominos[selection][i].x;
+		fallingTetromino[i].y = tetrominos[selection][i].y;
+	}
+}
+
+void
+moveTetromino(int dir)
+{
+	int outOfBounds = 0;
+	for(int i = 0; i < 4; i++){
+		fallingTetromino[i].x += dir;
+		if (fallingTetromino[i].x >= BOARD_WIDTH || fallingTetromino[i].x < 0) {
+			outOfBounds = 1;
+		}
+	}
+	if (outOfBounds) {
+		for(int i = 0; i < 4; i++){
+			fallingTetromino[i].x -= dir;
+		}
 	}
 }
 
